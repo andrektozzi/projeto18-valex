@@ -52,3 +52,34 @@ function formatNamePrintedCard(employeeFullName: string) {
     name.push(nameObject[nameObject.length - 1]);
     return name.join(" ").toUpperCase();
 }
+
+export async function activation(id: number, cvc: string, password: string) {
+    const card = await cardRepository.findById(id);
+
+    if(!card) {
+        throw {type: "not_found", message: "no data in the database"}
+    }
+
+    const today = dayjs().format("MM/YY");
+
+    if(dayjs(today).isAfter(dayjs(card.expirationDate))) {
+        throw {type: "bad_request", message: "expired card"}
+    }
+
+    if(card.password) {
+        throw {type: "conflict", message: "card already has a password"}
+    }
+
+    const checkCVC = bcrypt.compareSync(cvc, card.securityCode);
+
+    if(!checkCVC) {
+        throw {type: "unauthorized", message: "unauthorized"}
+    }
+
+    if(Number(password) || password.length != 4) {
+        throw {type: "bad_request", message: "wrong format for the password"}
+    }
+
+    const hash = bcrypt.hashSync(password, 8);
+    await cardRepository.update(id, { password: hash });
+}

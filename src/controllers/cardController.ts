@@ -11,3 +11,12 @@ export async function create(req: Request, res: Response) {
 
     return res.status(201).send(card);
 }
+
+export async function activation(req: Request, res: Response) {
+    const { id } = req.params;
+    const { cvc, password } = req.body;
+
+    await cardService.activation(Number(id), cvc, password);
+
+    return res.sendStatus(200);
+}
