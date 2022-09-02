@@ -1,11 +1,13 @@
-import { Router } from 'express';
-
-import * as cardController from "../controllers/cardController";
-import * as validateCard from "../middlewares/validateCard";
+import { Router } from "express";
+import { middleware } from "../middlewares/schemasValidationMiddleware.js";
+import { authValidationMiddleware } from "../middlewares/authValidationMiddleware.js";
+import * as cardController from "../controllers/cardController.js";
+import * as cardSchemas from "../schemas/cardSchemas.js";
 
 const cardRouter = Router();
 
-cardRouter.post("/cards", validateCard.validateCard, cardController.create);
-cardRouter.post("/cards/:id/activate", validateCard.validateActivation, cardController.activation);
+cardRouter.post("/newcards/:employeid", authValidationMiddleware,  middleware(cardSchemas.addCardSchema), cardController.newCard);
+cardRouter.put("/activatecards/:cardid", middleware(cardSchemas.activateCardSchema), cardController.activateCard);
+cardRouter.get("/viewtransactions/:cardid", cardController.viewTransactions);
 
 export default cardRouter;

@@ -1,5 +1,5 @@
-import { connection } from "../../database";
-import { mapObjectToUpdateQuery } from "../../utils/sqlUtils";
+import { connection } from "../../database.js";
+import { mapObjectToUpdateQuery } from "../../utils/sqlUtils.js";
 
 export type TransactionTypes =
   | "groceries"
@@ -62,6 +62,22 @@ export async function findByCardDetails(
       FROM cards 
       WHERE number=$1 AND "cardholderName"=$2 AND "expirationDate"=$3`,
     [number, cardholderName, expirationDate]
+  );
+
+  return result.rows[0];
+}
+
+export async function viewCardDetails(id: number) {
+  const result = await connection.query<Card, [number]>(
+    ` SELECT 
+        "number", 
+        "cardholderName", 
+        "expirationDate",
+        "securityCode",
+        "type"
+      FROM cards 
+      WHERE id=$1`,
+    [id]
   );
 
   return result.rows[0];
