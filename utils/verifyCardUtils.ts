@@ -65,3 +65,14 @@ export function verifyIsCardBlock(card: cardRepository.Card) {
 
   return
 }
+
+export function verifyIsCardUnblock(card: cardRepository.Card) {
+  if (!card.isBlocked) {
+    throw {
+      status: 403,
+      message: "Esse cartão já está desbloqueado!"
+    }
+  }
+
+  return
+}

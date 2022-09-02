@@ -9,10 +9,7 @@ const cardRouter = Router();
 cardRouter.post("/newcards/:employeeid", authValidationMiddleware, middleware(cardSchemas.addCardSchema), cardController.newCard);
 cardRouter.put("/activatecards/:cardid", middleware(cardSchemas.activateCardSchema), cardController.activateCard);
 cardRouter.get("/viewtransactions/:cardid", cardController.viewTransactions);
-cardRouter.put(
-    "/blockcards/:cardid",
-    middleware(cardSchemas.viewCardSchema),
-    cardController.blockCard
-  );
+cardRouter.put("/blockcards/:cardid", middleware(cardSchemas.viewCardSchema), cardController.blockCard);
+cardRouter.put("/unblockcards/:cardid", middleware(cardSchemas.viewCardSchema), cardController.unblockCard);
 
 export default cardRouter;

@@ -139,3 +139,18 @@ export async function blockCard(cardId: number, password: string) {
   await cardRepository.update(cardId, cardData);
   return
 }
+
+export async function unblockCard(cardId: number, password: string) {
+  const card = await findCardById(cardId);
+
+  verifyCardUtils.verifyPasswordMatch(card, password);
+  verifyCardUtils.verifyCardHasExpired(card);
+  verifyCardUtils.verifyIsCardUnblock(card);
+
+  const cardData = {
+    isBlocked: false
+  }
+
+  await cardRepository.update(cardId, cardData);
+  return
+}
