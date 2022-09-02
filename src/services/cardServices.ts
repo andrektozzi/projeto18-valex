@@ -112,7 +112,7 @@ export async function findEmployeeCardByType(type: cardRepository.TransactionTyp
     return;
   }
   
-  export async function findCardById(cardId: number) {
+export async function findCardById(cardId: number) {
     const card = await cardRepository.findById(cardId);
   
     if (!card) {
@@ -124,3 +124,18 @@ export async function findEmployeeCardByType(type: cardRepository.TransactionTyp
   
     return card;
   }
+
+export async function blockCard(cardId: number, password: string) {
+  const card = await findCardById(cardId);
+  
+  verifyCardUtils.verifyPasswordMatch(card, password);
+  verifyCardUtils.verifyCardHasExpired(card);
+  verifyCardUtils.verifyIsCardBlock(card);
+  
+  const cardData = {
+    isBlocked: true
+  }
+  
+  await cardRepository.update(cardId, cardData);
+  return
+}

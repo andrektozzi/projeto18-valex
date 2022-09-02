@@ -54,3 +54,14 @@ export function verifyIsCardActive(card: cardRepository.Card) {
   
     return
 }
+
+export function verifyIsCardBlock(card: cardRepository.Card) {
+  if (card.isBlocked) {
+    throw {
+      status: 403,
+      message: "Esse cartão já está bloqueado!"
+    }
+  }
+
+  return
+}
