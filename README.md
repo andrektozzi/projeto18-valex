@@ -47,6 +47,10 @@ POST /newcards/:employeeid
 
 #### Request:
 
+| Params       | Type      | Description               |
+| :----------- | :-------- | :------------------------ |
+| `employeeId` | `integer` | **Required**. employee Id |
+
 | Body   | Type     | Description                        |
 | :----- | :------- | :--------------------------------- |
 | `type` | `string` | **Required**. type of card benefit |
@@ -70,6 +74,10 @@ PUT /activatecards/:cardid
 ```
 
 #### Request:
+
+| Params   | Type      | Description           |
+| :------- | :-------- | :-------------------- |
+| `cardId` | `integer` | **Required**. card Id |
 
 | Body           | Type     | Description                 |
 | :------------- | :------- | :-------------------------- |
