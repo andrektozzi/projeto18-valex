@@ -6,8 +6,8 @@ export async function newCard(req: Request, res: Response) {
     const employeeId = Number(req.params.employeeid);
     const companyKey = res.locals.id;
   
-    await cardServices.newCard(employeeId, type, companyKey);
-    return res.sendStatus(201);
+    const cardData = await cardServices.newCard(employeeId, type, companyKey);
+    return res.status(201).send(cardData);
 }
   
   export async function activateCard(req: Request, res: Response) {
@@ -15,7 +15,7 @@ export async function newCard(req: Request, res: Response) {
     const cardId = Number(req.params.cardid);
   
     await cardServices.activateCard(cardId, securityCode, password);
-    return res.sendStatus(200);
+    return res.status(200).send("Cartão ativado!")
 }
 
 export async function viewTransactions(req: Request, res: Response) {
@@ -30,7 +30,7 @@ export async function blockCard(req: Request, res: Response) {
     const cardId = Number(req.params.cardid);
   
     await cardServices.blockCard(cardId, password);
-    return res.sendStatus(200);
+    return res.status(200).send("Cartão bloqueado!")
 }
 
 export async function unblockCard(req: Request, res: Response) {
@@ -38,5 +38,5 @@ export async function unblockCard(req: Request, res: Response) {
     const cardId = Number(req.params.cardid);
   
     await cardServices.unblockCard(cardId, password);
-    return res.sendStatus(200);
+    return res.status(200).send("Cartão desbloqueado!")
 }

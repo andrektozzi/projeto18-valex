@@ -14,26 +14,21 @@ import Cryptr from "cryptr";
 import bcrypt from "bcryptjs";
 
 
-export async function newCard(
-  employeeId: number,
-  type: cardRepository.TransactionTypes,
-  companyKey: string
-) {
-  const company = await companyServices.findCompany(companyKey);
+export async function newCard(employeeId: number, type: cardRepository.TransactionTypes, companyKey: string) {
+  const cryptr = new Cryptr(process.env.CRYPTR_SECRET);
+  await companyServices.findCompany(companyKey);
   const employee = await employeeServices.findEmployee(employeeId);
 
   await findEmployeeCardByType(type, employeeId);
 
-  await insertNewCardData(company, employee, type);
+  const cardData = await insertNewCardData(employee, type);
+  const securityCode = cryptr.decrypt(cardData.securityCode);
+  cardData["securityCode"] = securityCode;
 
-  return;
+  return { cardData };
 }
 
-export async function insertNewCardData(
-  company: companyRepository.Company,
-  employee: employeeRepository.Employee,
-  type: cardRepository.TransactionTypes
-) {
+export async function insertNewCardData(employee: employeeRepository.Employee, type: cardRepository.TransactionTypes) {
   const cryptr = new Cryptr(process.env.CRYPTR_SECRET);
   const securityCode = cryptr.encrypt(faker.random.numeric(3));
 
@@ -59,14 +54,10 @@ export async function insertNewCardData(
 
   await cardRepository.insert(cardData);
 
-  return;
+  return cardData;
 }
 
-export async function activateCard(
-  cardId: number,
-  securityCode: number,
-  password: string
-) {
+export async function activateCard(cardId: number, securityCode: number, password: string) {
   const passwordCrypt = bcrypt.hashSync(password, 10);
 
   const card = await findCardById(cardId);
@@ -84,60 +75,63 @@ export async function activateCard(
 }
 
 export async function viewTransactions(cardId: number) {
-    const card = await findCardById(cardId);
-  
-    const recharges = await rechargeRepository.findByCardId(cardId);
-    const payments = await paymentRepository.findByCardId(cardId);
-  
-    const balance = await calcBalance(recharges, payments);
-  
-    const transactions = {
-      balance,
-      payments,
-      recharges,
-    };
-  
-    return transactions;
+  await findCardById(cardId);
+
+  const recharges = await rechargeRepository.findByCardId(cardId);
+  const payments = await paymentRepository.findByCardId(cardId);
+
+  const balance = await calcBalance(recharges, payments);
+
+  const transactions = {
+    balance,
+    payments,
+    recharges,
+  };
+
+  return transactions;
 }
 
 export async function findEmployeeCardByType(type: cardRepository.TransactionTypes, employeeId: number) {
-    const cardExist = await cardRepository.findByTypeAndEmployeeId(type,employeeId);
-  
-    if (cardExist) {
-      throw {
-        status: 400,
-        message: "Esse empregado já possui um cartão deste tipo!",
-      };
-    }
-    return;
+  const cardExist = await cardRepository.findByTypeAndEmployeeId(
+    type,
+    employeeId
+  );
+
+  if (cardExist) {
+    throw {
+      status: 400,
+      message: "Esse empregado já possui um cartão deste tipo!",
+    };
   }
+  return;
+}
   
 export async function findCardById(cardId: number) {
-    const card = await cardRepository.findById(cardId);
-  
-    if (!card) {
-      throw {
-        status: 400,
-        message: "Esse cartão não existe!",
-      };
-    }
-  
-    return card;
+  const card = await cardRepository.findById(cardId);
+
+  if (!card) {
+    throw {
+      status: 400,
+      message: "Esse cartão não existe!",
+    };
   }
+
+  return card;
+}
 
 export async function blockCard(cardId: number, password: string) {
   const card = await findCardById(cardId);
-  
+
   verifyCardUtils.verifyPasswordMatch(card, password);
   verifyCardUtils.verifyCardHasExpired(card);
   verifyCardUtils.verifyIsCardBlock(card);
-  
+
   const cardData = {
-    isBlocked: true
-  }
-  
+    isBlocked: true,
+  };
+
   await cardRepository.update(cardId, cardData);
-  return
+  return;
 }
 
 export async function unblockCard(cardId: number, password: string) {
@@ -148,9 +142,9 @@ export async function unblockCard(cardId: number, password: string) {
   verifyCardUtils.verifyIsCardUnblock(card);
 
   const cardData = {
-    isBlocked: false
-  }
+    isBlocked: false,
+  };
 
   await cardRepository.update(cardId, cardData);
-  return
+  return;
 }
